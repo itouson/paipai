@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body class="bg-a">
+<div class="container-fluid" id="app">
+    <div class="row">
+        <div class="col text-center bg-warning text-white shadow">我 的 发 布</div>
+    </div>
+    <div>我发布的拍品：</div>
+    <div>
+        <template>
+            <el-table :data="goods" stripe style="width: 100%">
+                <el-table-column prop="gname" label="名称"></el-table-column>
+                <el-table-column prop="intro" label="简介"></el-table-column>
+                <el-table-column label="操作" width="400">
+                    <template slot-scope="scope">
+                        <el-button type="success" size="mini" @click="goToStart(scope.row.id,scope.row.gname)">发起竞拍
+                        </el-button>
+                        <el-button type="warning" size="mini">修改</el-button>
+                        <el-button type="danger" size="mini">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+    </div>
+
+    <el-dialog title="发起竞拍" :visible.sync="startDiaVisible" :close-on-click-modal="false">
+        <el-form :model="startForm" style="text-align: left"
+                 label-width="80px">
+            <el-form-item label="起拍价格" prop="startprice">
+                <el-input v-model="startForm.startprice"></el-input>
+            </el-form-item>
+            <el-form-item label="加价幅度">
+                <el-input v-model="startForm.stepprice"></el-input>
+            </el-form-item>
+            <el-form-item label="起拍时间">
+                <div class="block">
+                    <el-date-picker v-model="startForm.starttime" type="datetime"></el-date-picker>
+                </div>
+            </el-form-item>
+            <el-form-item label="截止时间">
+                <div class="block">
+                    <el-date-picker v-model="startForm.endtime" type="datetime"></el-date-picker>
+                </div>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="startDiaVisible=false">取 消</el-button>
+            <el-button type="primary" @click="startAuction">确 定</el-button>
+        </div>
+    </el-dialog>
+
+    <hr/>
+    <div>我发起的竞拍：</div>
+    <div>
+        <template>
+            <el-table :data="rooms" stripe style="width: 100%">
+                <el-table-column prop="id" label="#"></el-table-column>
+                <el-table-column prop="gname" label="名称"></el-table-column>
+                <el-table-column prop="startprice" label="起拍价"></el-table-column>
+                <el-table-column prop="currentprice" label="当前价"></el-table-column>
+                <el-table-column prop="starttime" label="起拍时间"></el-table-column>
+                <el-table-column prop="endtime" label="截止时间"></el-table-column>
+                <el-table-column prop="status" label="状态"></el-table-column>
+                <el-table-column label="操作" width="300">
+                    <template slot-scope="scope">
+                        <el-button type="success" size="mini" @click="goToRoom(scope.row.id)">详情</el-button>
+                        <el-button type="warning" size="mini">修改</el-button>
+                        <el-button type="danger" size="mini">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+    </div>
+
+    <hr/>
+    <div>相关订单：</div>
+    <div>
+        <template>
+            <el-table :data="orders" stripe style="width: 100%">
+                <el-table-column prop="id" label="#"></el-table-column>
+                <el-table-column prop="gname" label="拍品名称"></el-table-column>
+                <el-table-column prop="endprice" label="成交价"></el-table-column>
+                <el-table-column prop="ownerAccount" label="买家"></el-table-column>
+                <el-table-column prop="createdtime" label="成交时间"></el-table-column>
+                <el-table-column prop="address" label="收货地址"></el-table-column>
+            </el-table>
+        </template>
+    </div>
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<script th:src="@{/static/moon/js/cookie.jwt.js}"></script>
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script th:inline="javascript">
+    let vueApp = new Vue({
+        el: "#app",
+        data: {
+            goods: [],
+            startDiaVisible: false,
+            startForm: {},
+            rooms: [],
+            orders:[]
+        },
+        watch: {
+            startDiaVisible() {
+                if (vueApp.startDiaVisible == false)
+                    vueApp.startForm = {}
+            }
+        },
+        methods: {
+            initOrder() {
+                $.post("/moon/TbOrder/listOrdersBySellerId", {}, function (res) {
+                    vueApp.orders = res
+                })
+            },
+            goToRoom(id) {
+                location.href = "/moon/Room/openRoomView?roomId=" + id
+            },
+            goToStart(id, gname) {
+                vueApp.startForm.goodId = id
+                vueApp.startForm.gname = gname
+                vueApp.startDiaVisible = true
+            },
+            startAuction() {
+                $.post("/moon/Room/startAuction", {room: JSON.stringify(vueApp.startForm)}, function (res) {
+                    if (res == "success") {
+                        layer.msg(res)
+                        vueApp.startDiaVisible = false
+                        vueApp.initData()
+                    } else {
+                        layer.alert(res)
+                    }
+                })
+            },
+            initAuctionRooms() {
+                $.post("/moon/Room/listRoomsByUserId", {}, function (res) {
+                    vueApp.rooms = res
+                })
+            }
+            ,
+            initGoods() {
+                $.post("/goods/listGoodsByUserId", {}, function (res) {
+                    vueApp.goods = res
+                })
+            }
+            ,
+            initData() {
+                this.initGoods()
+                this.initAuctionRooms()
+                this.initOrder()
+            }
+        },
+        mounted() {
+            this.initData()
+        }
+
+    })
+
+
+</script>
+</body>
+</html>

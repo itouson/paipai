@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+</head>
+<body style="background-image: url('/static/img/bg-d.jpg')">
+<div class="container-fluid" id="app">
+    <h4 class="bg-success text-center p-3 text-white font-weight-bold"><i class="fa fa-user-circle-o"></i>&nbsp;统一用户认证服务
+    </h4>
+    <div class="row mt-5">
+        <div class="col p-5">
+            <div class="card border-light">
+                <div class="card-header text-center font-weight-bold">资料中心</div>
+                <form id="form-info" class="card-body">
+                    <div>登录名</div>
+                    <div>{{u.account}}</div>
+                    <div class="mt-1">手机</div>
+                    <div><input name="mobile" type="text" class="form-control" :value="u.mobile"/></div>
+                    <div class="mt-1">昵称</div>
+                    <div><input name="nickname" type="text" class="form-control" :value="u.nickname"/></div>
+                    <div class="mt-1">真实姓名</div>
+                    <div><input name="realname" type="text" class="form-control" :value="u.realname"/></div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-danger" @click="commit();">更新</button>
+                    </div>
+                    <div class="text-center font-weight-bold mt-3" style="font-size:16px;">个人额度</div>
+                    <div>可用额度</div>
+                    <div class="font-weight-bold text-success" style="font-size:20px;">¥{{u.freec}}</div>
+                    <div>总额度</div>
+                    <div class="font-weight-bold">¥{{u.totalc}}</div>
+                    <div class="text-center font-weight-bold mt-3" style="font-size:16px;">收货地址</div>
+                    <div>
+                        <button type="button" @click="openAddr();" class="btn btn-outline-info"><i
+                                class="fa fa-address-book"></i>地址簿
+                        </button>&nbsp;|&nbsp;<button @click="openAddrAdd();" type="button"
+                                                      class="btn btn-outline-danger"><i
+                            class="fa fa-plus"></i>新增地址
+                    </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<script th:inline="javascript">
+    //app
+    var app = new Vue({
+        el: "#app",
+        data: {
+            u: {}
+        },
+        methods: {
+            showuserinfo: function () {
+                $.post("/moon/SysUser/currUser", {}, function (d) {
+                    app.u = d;
+                });
+            },
+            commit: function () {
+                $.post("/moon/SysUser/updateCurrUser", $("#form-info").serialize(), function (d) {
+                    if (d != "success") {
+                        layer.alert("更新失败");
+                        return;
+                    }
+                    layer.alert("更新成功");
+                    app.showuserinfo();
+                });
+            },
+            openAddr: function () {
+                layer.open({
+                    type: 2,
+                    area: ["50%", "99%"],
+                    content: "/openWork/addr"
+                });
+            },
+            openAddrAdd: function () {
+                layer.open({
+                    type: 2,
+                    area: ["50%", "50%"],
+                    content: "/openWork/addradd"
+                });
+            }
+        },
+        mounted: function () {
+            this.showuserinfo();
+        }
+    });
+</script>
+</body>
+</html>

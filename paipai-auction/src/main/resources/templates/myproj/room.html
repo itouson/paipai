@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+</head>
+<body class="bg-c">
+<div class="container-fluid h-100" id="app">
+    <div class="row">
+        <div class="col text-center bg-warning text-white shadow p-2">竞 拍 室</div>
+    </div>
+    <div class="row h-100">
+        <div class="col-sm-3 font-weight-bold p-2 bg-dark text-white">
+            <div>拍品名称：{{room.gname}}</div>
+            <div>发起人：{{room.upAccount}}</div>
+            <p/>
+            <div>起拍价格 : {{room.startprice}} <span>元</span></div>
+            <div>加价幅度 : {{room.stepprice}} <span>元</span></div>
+            <p/>
+            <div>当前价格 : {{room.currentprice}} <span>元</span></div>
+            <div>出价人：{{room.ownerAccount}}</div>
+            <p/>
+            <div>起拍时间 : {{room.starttime}}</div>
+            <div>结束时间 : {{room.endtime}}</div>
+        </div>
+        <div class="col-sm-9 h-100">
+            <div style="height: 85%;border: 1px solid #2F4F4F;border-radius: 10px;overflow:auto;">
+                <div>竞价记录：</div><hr>
+                <div class="m-1" v-for="item in roomItems">{{item.ownerAccount}} : 出价 {{item.currentprice}}元
+                    {{item.datetime}}
+                </div>
+            </div>
+            <div class="form-inline mt-2"><input type="text" class="form-control form-control-sm" v-model="price"/>
+                <button class="btn btn-sm btn-info ml-1" @click="send();">出价</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<script th:src="@{/static/moon/js/cookie.jwt.js}"></script>
+<script th:inline="javascript">
+    let ws
+    let user
+
+    if ($.cookie("token")) {
+        user = $.getckjwt("token");
+    }
+
+    let vueApp = new Vue({
+        el: "#app",
+        data: {
+            room: {},
+            roomItems: [],
+            price: '',
+        },
+        methods: {
+            initRoomItem() {
+                $.post("/moon/RoomItem/listRoomItemByRoomId", {
+                    roomId: [[${roomId}]]
+                }, function (res) {
+                    vueApp.roomItems = res
+                })
+            },
+            initRoom() {
+                $.post("/moon/Room/selectRoomById", {
+                    roomId: [[${roomId}]]
+                }, function (res) {
+                    vueApp.room = res
+                })
+            },
+            send() {
+                $.post("/moon/Room/updateRoom", {
+                    roomId: [[${roomId}]],
+                    price: vueApp.price
+                }, function (res) {
+                    if (res == "success") {
+                        ws.send(vueApp.price)
+                        vueApp.price = ''
+                    } else {
+                        layer.alert(res)
+                    }
+                })
+            }
+        },
+        mounted() {
+            this.initRoom()
+            this.initRoomItem()
+            ws = new WebSocket("ws://" + location.host + "/wspush?roomId=" + [[${roomId}]]);
+        }
+    });
+
+    ws.onmessage = function (e) {
+        //let obj = $.parseJSON(e.data)
+        //vueApp.msgs.push(obj)
+        vueApp.initRoom()
+        vueApp.initRoomItem()
+    }
+</script>
+</body>
+</html>

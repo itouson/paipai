@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+    <style>
+        .myitem {
+            width: 31%;
+            height: 266px;
+            border: 1px solid #a71d2a;
+            border-radius: 15px;
+            text-align: center;
+            line-height: 300px;
+            font-size: 25px;
+        }
+    </style>
+</head>
+<body class="bg-a">
+<div class="container-fluid h-100" id="app" style="overflow: hidden;">
+    <h4 class="bg-success text-center p-3 text-white font-weight-bold"><i class="fa fa-user-circle-o"></i>&nbsp;统一用户认证服务
+    </h4>
+    <div class="clearfix mt-4">
+        <div class="myitem float-left m-1"><a href="http://127.0.0.1:9001" target="_blank">拍拍</a></div>
+        <div class="myitem float-left m-1" v-for="p in projdata"><a :href="p.url" target="_blank">{{p.name}}</a></div>
+    </div>
+    <div class="clearfix mt-4">
+        <div class="myitem float-left m-1"><a href="/userinfo" target="_blank">资料中心</a></div>
+        <div class="myitem float-left m-1" v-for="p in projdata"><a :href="p.url" target="_blank">{{p.name}}</a></div>
+    </div>
+
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<script th:inline="javascript">
+    //app
+    var app = new Vue({
+        el: "#app",
+        data: {
+            projdata: []
+        },
+        methods: {
+            showprojdata: function () {
+                $.post("/moon/SysProj/selectAll", {}, function (d) {
+                    app.projdata = d;
+                });
+            }
+        },
+        mounted: function () {
+            this.showprojdata();
+        }
+    });
+</script>
+</body>
+</html>

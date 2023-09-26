@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+</head>
+<body class="bg-c">
+<div class="container-fluid" id="app">
+    <div class="row">
+        <div class="col text-center bg-success text-white shadow p-2">商 品 详 情</div>
+    </div>
+    <div class="mt-1">
+        <div class="row">
+            <div class="col">
+                <div th:text="${g.gname}" style="font-size:25px;"></div>
+                <div><img style="height:180px; width:180px;"
+                          th:src="${'http://localhost:10000/nginx-pic/goods/'+g.pic}"/></div>
+                <div><span>发布者：</span><span th:text="${g.userAccount}"></span></div>
+                <div><span>简介：</span><span th:text="${g.intro}"></span></div>
+                <div><span>当前状态：</span><span th:text="${g.status}"></span></div>
+            </div>
+        </div>
+
+        <hr/>
+        <div>参与竞拍：</div>
+        <table class="table table-light mt-4">
+            <thead>
+            <tr>
+                <th>场次编号</th>
+                <th>起拍价</th>
+                <th>当前价</th>
+                <th>起拍日期</th>
+                <th>截止日期</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r:${rooms}">
+                <td th:text="${r.id}"></td>
+                <td th:text="${r.startprice}"></td>
+                <td th:text="${r.currentprice}"></td>
+                <td th:text="${r.starttime}"></td>
+                <td th:text="${r.endtime}"></td>
+                <td th:text="${r.status}"></td>
+                <td>
+                    <a class="btn btn-sm btn-outline-success" th:href="'/moon/Room/openRoomView?roomId='+${r.id}"
+                       target="_blank">参与竞价</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<script th:inline="javascript">
+    //
+</script>
+</body>
+</html>

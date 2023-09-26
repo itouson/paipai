@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+</head>
+<body style="background-image: url('/static/img/bg-d.jpg')">
+<div class="container-fluid" id="app">
+    <h4 class="bg-success text-center p-3 text-white font-weight-bold"><i
+            class="fa fa-user-circle-o"></i>&nbsp;统一用户认证服务
+    </h4>
+    <div class="row mt-5">
+        <div class="col p-5">
+            <div class="card border-light">
+                <div class="card-header text-center font-weight-bold">用户登录</div>
+                <form class="card-body" action="/moon/SysUser/login" method="POST">
+                    <div>登录名</div>
+                    <div><input name="account" type="text" class="form-control"/></div>
+                    <div class="mt-3">密码</div>
+                    <div><input name="password" type="password" class="form-control"/></div>
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-outline-success">登录</button>&nbsp;|&nbsp;<a
+                            href="/reg">去注册</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<script th:inline="javascript">
+    //
+</script>
+</body>
+</html>

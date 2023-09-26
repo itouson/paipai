@@ -1,0 +1,5 @@
+# 项目排除路径
+/paipai-auction/target/
+/paipai-gateway/target/
+/paipai-goods-service/target/
+/paipai-uums/target/

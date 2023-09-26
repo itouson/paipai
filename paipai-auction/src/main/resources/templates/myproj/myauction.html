@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body class="bg-a">
+<div class="container-fluid" id="app">
+    <div class="row">
+        <div class="col text-center bg-warning text-white shadow">我 的 竞 拍</div>
+    </div>
+    <div>我参与的竞拍：</div>
+    <div>
+        <template>
+            <el-table :data="rooms" stripe style="width: 100%">
+                <el-table-column prop="id" label="#"></el-table-column>
+                <el-table-column prop="gname" label="拍品名称"></el-table-column>
+                <el-table-column prop="startprice" label="起拍价"></el-table-column>
+                <el-table-column prop="currentprice" label="当前价"></el-table-column>
+                <el-table-column prop="starttime" label="起拍时间"></el-table-column>
+                <el-table-column prop="endtime" label="截止时间"></el-table-column>
+                <el-table-column prop="status" label="状态"></el-table-column>
+                <el-table-column label="操作" width="300">
+                    <template slot-scope="scope">
+                        <el-button type="success" size="mini" @click="goToRoom(scope.row.id)">详情</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+    </div>
+    <hr>
+    <div>我的订单：</div>
+    <div>
+        <template>
+            <el-table :data="orders" stripe style="width: 100%">
+                <el-table-column prop="id" label="#"></el-table-column>
+                <el-table-column prop="gname" label="拍品名称"></el-table-column>
+                <el-table-column prop="endprice" label="成交价"></el-table-column>
+                <el-table-column prop="createdtime" label="成交时间"></el-table-column>
+                <el-table-column prop="address" label="收货地址"></el-table-column>
+                <el-table-column label="操作" width="300">
+                    <template slot-scope="scope">
+                        <el-button type="success" size="mini" @click="goToAddress(scope.row.id)">修改地址</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+    </div>
+
+    <el-dialog title="修改地址" :visible.sync="diaVisible" :close-on-click-modal="false">
+        <el-form style="text-align: left" label-width="80px">
+            <el-form-item label="地址">
+                <el-input v-model="address"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="diaVisible=false">取 消</el-button>
+            <el-button type="primary" @click="updateAddress">确 定</el-button>
+        </div>
+    </el-dialog>
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script th:inline="javascript">
+    let vueApp = new Vue({
+        el: "#app",
+        data: {
+            diaVisible: false,
+            rooms: [],
+            orders: [],
+            orderId: '',
+            address: ''
+        },
+        watch: {
+            diaVisible() {
+                if (vueApp.diaVisible == false)
+                    vueApp.address = ''
+            }
+        },
+        methods: {
+            goToRoom(id) {
+                location.href = "/moon/Room/openRoomView?roomId=" + id
+            },
+            initRoom() {
+                $.post("/moon/Room/listRoomsByOwnerId", {}, function (res) {
+                    vueApp.rooms = res
+                })
+            },
+            goToAddress(id) {
+                vueApp.orderId = id
+                vueApp.diaVisible = true
+            },
+            updateAddress() {
+                $.post("/moon/TbOrder/updateAddress", {
+                        orderId: vueApp.orderId,
+                        address: vueApp.address
+                    }, function (res) {
+                        layer.msg(res)
+                        vueApp.diaVisible = false
+                        vueApp.initData()
+                    }
+                )
+            },
+            initOrder() {
+                $.post("/moon/TbOrder/listOrderByOwnerId", {}, function (res) {
+                        vueApp.orders = res
+                    }
+                )
+            },
+            initData() {
+                this.initOrder()
+                this.initRoom()
+            }
+        },
+        mounted() {
+            this.initData()
+        }
+    })
+</script>
+</body>
+</html>

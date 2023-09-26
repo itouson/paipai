@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moon.dao.RoomMapper">
+  <resultMap id="BaseResultMap" type="com.moon.entity.Room">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="startprice" jdbcType="DECIMAL" property="startprice" />
+    <result column="currentprice" jdbcType="DECIMAL" property="currentprice" />
+    <result column="stepprice" jdbcType="DECIMAL" property="stepprice" />
+    <result column="starttime" jdbcType="TIMESTAMP" property="starttime" />
+    <result column="endtime" jdbcType="TIMESTAMP" property="endtime" />
+    <result column="good_id" jdbcType="INTEGER" property="goodId" />
+    <result column="gname" jdbcType="VARCHAR" property="gname" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="up_id" jdbcType="INTEGER" property="upId" />
+    <result column="up_account" jdbcType="VARCHAR" property="upAccount" />
+    <result column="owner_id" jdbcType="INTEGER" property="ownerId" />
+    <result column="owner_account" jdbcType="VARCHAR" property="ownerAccount" />
+  </resultMap>
+</mapper>

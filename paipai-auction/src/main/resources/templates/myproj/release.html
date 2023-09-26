@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/static/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/static/icon/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/upload/css/uploader.css}"/>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body class="bg-c">
+<div class="container-fluid" id="app">
+    <div class="row">
+        <div class="col text-center bg-success text-white shadow">发 布 拍 品</div>
+    </div>
+
+    <form id="form-goods">
+        <div>种类</div>
+        <select name="typeId" placeholder="请选择">
+            <option v-for="item in types" :value="item.id">{{item.tname}}</option>
+        </select>
+        <div>拍品名称</div>
+        <input name="gname" type="text"/>
+        <div>简介</div>
+        <textarea name="intro"></textarea>
+    </form>
+
+    <div>
+        <button id="btn-upl" type="button" class="btn btn-sm btn-info">上传图片</button>
+    </div>
+    <div id="taskbar"></div>
+    <img id="goodsImg" src="" style="width: 100px;">
+
+    <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="saveAdd">发 布</el-button>
+    </div>
+</div>
+<!-- js -->
+<script th:src="@{/static/moon/js/jquery.js}"></script>
+<script th:src="@{/static/moon/js/vue.js}"></script>
+<script th:src="@{/static/layer/layer.js}"></script>
+<script th:src="@{/static/upload/js/uploader.js}"></script>
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script th:inline="javascript">
+    let imgName = ""
+    //VueApp
+    let vueApp = new Vue({
+        el: "#app",
+        data: {
+            types: []
+        },
+        methods: {
+            saveAdd() {
+                let formData = $("#form-goods").serialize() + "&pic=" + imgName
+                $.post("/goods/addGoods", formData,
+                    function (res) {
+                        if (res == "success") {
+                            layer.alert(res)
+                            location.href = "/success"
+                        } else {
+                            layer.alert(res)
+                        }
+                    })
+            },
+            initType() {
+                $.post("/goods/listTypes", {}, function (res) {
+                    vueApp.types = res
+                })
+            },
+            initData() {
+                this.initType()
+            }
+        },
+        mounted() {
+            this.initData()
+        }
+    })
+
+    //upl
+    let upl = new Q.Uploader({
+        url: "/goods/upl",
+        target: $("#btn-upl")[0],
+        view: $("#taskbar")[0],
+        upName: "file",
+        dataType: "text",
+        on: {
+            complete: function (task) {
+                imgName = task.response
+                let imgSrc = "http://127.0.0.1:10000/nginx-pic/goods/" + imgName
+                $("#goodsImg").prop("src", imgSrc)
+                layer.msg("上传成功")
+            }
+        }
+
+    })
+</script>
+</body>
+</html>
